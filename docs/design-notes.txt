@@ -1,0 +1,511 @@
+===============================================================================
+JEOPARDY! BATTLE ARENA - DESIGN NOTES
+===============================================================================
+
+Author: Ashir Imran
+Course: CSC 4370/6370 - Web Programming (Fall 2025)
+
+===============================================================================
+ARCHITECTURE OVERVIEW
+===============================================================================
+
+This web application follows a session-based architecture where all game 
+state is maintained using PHP sessions. No database is used; persistent 
+storage is achieved through flat file I/O. The application consists of four 
+main pages that handle different phases of the game.
+
+===============================================================================
+SESSION MANAGEMENT
+===============================================================================
+
+PHP sessions are used extensively to maintain game state across page requests.
+The session is started at the beginning of each page using session_start().
+
+Session Variables Used:
+
+1. $_SESSION['players'] (array)
+   - Stores an array of player names (strings)
+   - Index corresponds to player position
+   - Example: ['Alice', 'Bob', 'Charlie']
+
+2. $_SESSION['scores'] (array)
+   - Stores current score for each player (integers)
+   - Index corresponds to same player in 'players' array
+   - Example: [500, 300, 700]
+   - Scores can be negative if players answer incorrectly
+
+3. $_SESSION['current_player'] (integer)
+   - Index of the player whose turn it currently is
+   - Ranges from 0 to (count of players - 1)
+   - Incremented after each question in round-robin fashion
+   - Formula: $_SESSION['current_player'] = (current + 1) % player_count
+
+4. $_SESSION['used_tiles'] (2D array)
+   - Tracks which question tiles have been selected
+   - Structure: [category_index][value_index] => boolean
+   - true = tile has been used, false = still available
+   - Dimensions: 5 categories x 5 values = 25 tiles total
+   - Example: $_SESSION['used_tiles'][2][3] = true means 
+     category 2, value index 3 ($400) has been answered
+
+5. $_SESSION['daily_doubles'] (array of arrays)
+   - Defines which tiles are Daily Doubles
+   - Structure: [['cat' => category_index, 'val' => value_index], ...]
+   - Set at game initialization
+   - Example: [['cat' => 1, 'val' => 2], ['cat' => 3, 'val' => 3]]
+
+6. $_SESSION['dd_wager'] (integer, temporary)
+   - Stores the wager amount for current Daily Double
+   - Only exists during Daily Double question phase
+   - Cleared after answer is submitted
+
+7. $_SESSION['dd_category'] and $_SESSION['dd_value'] (integers, temporary)
+   - Store which tile is the current Daily Double
+   - Used to retrieve correct question after wager is submitted
+   - Cleared after answer is submitted
+
+8. $_SESSION['fj_wagers'] (array, Final Jeopardy only)
+   - Stores each player's wager for Final Jeopardy
+   - Index corresponds to player index
+   - Example: [200, 500, 300]
+
+9. $_SESSION['fj_answers'] (array, Final Jeopardy only)
+   - Stores each player's answer to Final Jeopardy question
+   - Index corresponds to player index
+   - Example: ['Andes', 'Alps', 'Andes']
+
+===============================================================================
+TILE TRACKING SYSTEM
+===============================================================================
+
+The game board consists of 5 categories with 5 question tiles each.
+Tiles are tracked in a 2D array structure:
+
+Structure:
+$_SESSION['used_tiles'] = [
+    [false, false, false, false, false],  // Category 0
+    [false, false, false, false, false],  // Category 1
+    [false, false, false, false, false],  // Category 2
+    [false, false, false, false, false],  // Category 3
+    [false, false, false, false, false]   // Category 4
+]
+
+When a tile is selected:
+1. Check if tile is already used: if ($_SESSION['used_tiles'][$cat][$val])
+2. If not used, display the question
+3. After answer is submitted, mark as used:
+   $_SESSION['used_tiles'][$category][$value] = true
+4. Tile rendering checks this array to display used vs available tiles
+
+End Game Detection:
+- Loop through all tiles in $_SESSION['used_tiles']
+- If all values are true, redirect to results.php for Final Jeopardy
+- This ensures all questions are answered before final round
+
+===============================================================================
+PAGE FLOW AND LOGIC
+===============================================================================
+
+1. index.php - Game Setup
+   -----------------------
+   Purpose: Player registration and session initialization
+   
+   Flow:
+   a) Display welcome screen and rules
+   b) Show form with 4 player name input fields
+   c) On form submit (POST):
+      - Validate: at least one player name required
+      - Initialize session variables (players, scores, used_tiles, etc.)
+      - Set Daily Double positions randomly or hard-coded
+      - Redirect to game.php
+   
+   Validation:
+   - Trim whitespace from player names
+   - Ensure at least one non-empty name
+   - Maximum 4 players allowed
+
+2. game.php - Main Game Board
+   ----------------------------
+   Purpose: Display board, handle question selection and answering
+   
+   Views (controlled by $currentView variable):
+   
+   a) 'board' view:
+      - Display 5x5 grid of categories and tiles
+      - Show current player name and all scores
+      - Render available tiles as clickable buttons
+      - Render used tiles as empty/grayed out
+      - Check if all tiles used -> redirect to results.php
+   
+   b) 'daily_double_wager' view:
+      - Triggered when Daily Double tile is selected
+      - Display "DAILY DOUBLE" announcement
+      - Show current player's score
+      - Form to enter wager (0 to max of current score or $500)
+      - On submit, store wager and proceed to question
+   
+   c) 'question' view:
+      - Display selected question text
+      - Show point value (or wager if Daily Double)
+      - Form with text input for answer
+      - On submit, evaluate answer
+   
+   d) 'answer_result' view:
+      - Display whether answer was correct or incorrect
+      - Show correct answer if wrong
+      - Display points added or subtracted
+      - Button to return to board
+      - Turn automatically advances to next player
+   
+   Answer Evaluation:
+   - Convert both user answer and correct answer to lowercase
+   - Trim whitespace
+   - Compare strings for exact match
+   - Case-insensitive comparison: strtolower($user) === strtolower($correct)
+
+3. results.php - Final Jeopardy
+   ------------------------------
+   Purpose: Handle Final Jeopardy betting round and display final results
+   
+   Phases (controlled by $currentPhase variable):
+   
+   a) 'wager' phase:
+      - Display all current scores
+      - Form for each player to enter their wager
+      - Validate: wager must be 0 to current score
+      - Store wagers in $_SESSION['fj_wagers']
+      - Move to 'question' phase
+   
+   b) 'question' phase:
+      - Display Final Jeopardy category and question
+      - Show each player's wager
+      - Form for each player to submit answer
+      - Store answers in $_SESSION['fj_answers']
+      - Calculate final scores
+      - Move to 'results' phase
+   
+   c) 'results' phase:
+      - Display correct answer
+      - Show each player's answer (marked correct/incorrect)
+      - Calculate final scores:
+        * Correct: score += wager
+        * Incorrect: score -= wager
+      - Rank players by final score
+      - Announce winner (highest score)
+      - Display final standings table
+      - Save winner to leaderboard file
+      - Buttons: "View Leaderboard", "Play Again"
+   
+   Ranking Algorithm:
+   - Create array of player data (name, score, index)
+   - Sort array by score in descending order
+   - usort() with custom comparison function
+   - Display in ranked order
+
+4. leaderboard.php - Persistent Leaderboard
+   -----------------------------------------
+   Purpose: Display and manage persistent game records
+   
+   Flow:
+   a) Read from data/leaderboard.txt
+   b) Parse each line: "Name | Score | Date"
+   c) Display in table format
+   d) Admin section with password-protected reset
+   
+   File Format:
+   - Plain text file
+   - One line per game
+   - Format: "Winner Name | $Score | YYYY-MM-DD HH:MM:SS"
+   - Example: "Alice | $1500 | 2025-11-19 14:30:45"
+   
+   Admin Reset:
+   - Form with password input field
+   - On submit with correct password ("admin123"):
+     * Truncate leaderboard.txt using file_put_contents($file, '')
+     * Display success message
+   - On submit with incorrect password:
+     * Display error message
+     * File remains unchanged
+
+===============================================================================
+FILE I/O OPERATIONS
+===============================================================================
+
+1. Reading Questions (data/questions.php):
+   - Use require_once to load PHP file
+   - File defines $categories array and $finalJeopardy array
+   - Arrays are structured data that can be directly accessed
+   - No parsing needed since it's native PHP
+
+2. Reading Leaderboard (data/leaderboard.txt):
+   - Use file() function to read all lines into array
+   - Parse each line with explode(' | ')
+   - Extract name, score, date from each line
+   - Display in HTML table
+
+3. Writing to Leaderboard:
+   - Format data: "Name | Score | Date\n"
+   - Use file_put_contents() with FILE_APPEND flag
+   - Appends to end of file without overwriting
+   - Example:
+     $entry = $name . " | $" . $score . " | " . date('Y-m-d H:i:s') . "\n";
+     file_put_contents('data/leaderboard.txt', $entry, FILE_APPEND);
+
+4. Resetting Leaderboard:
+   - Use file_put_contents() without FILE_APPEND
+   - Write empty string to truncate file
+   - Example: file_put_contents('data/leaderboard.txt', '');
+
+===============================================================================
+DAILY DOUBLE IMPLEMENTATION
+===============================================================================
+
+Daily Doubles are special tiles that allow players to wager points.
+
+Setup:
+- During game initialization in index.php
+- Define 2 Daily Double positions in $_SESSION['daily_doubles']
+- Format: [['cat' => category_index, 'val' => value_index], ...]
+- Example: Category 1, Value index 2 = Science $300
+
+Detection:
+- When tile is selected in game.php
+- Loop through $_SESSION['daily_doubles'] array
+- Check if selected category and value match any Daily Double
+- If match found, set $isDailyDouble = true
+
+Wager Phase:
+- Display special "DAILY DOUBLE" screen
+- Player enters wager amount
+- Validate: 0 <= wager <= max(current_score, 500)
+- If player has less than $500, can still wager up to $500
+- Store wager in $_SESSION['dd_wager']
+- Proceed to question display
+
+Question Phase:
+- Display question normally
+- Show wager amount instead of tile value
+- Accept answer input
+
+Scoring:
+- If correct: score += wager
+- If incorrect: score -= wager
+- Clear Daily Double session variables after scoring
+
+===============================================================================
+FINAL JEOPARDY FLOW
+===============================================================================
+
+Trigger Condition:
+- All 25 regular tiles are used (all values in used_tiles are true)
+- game.php detects this and redirects to results.php
+
+Three-Phase Process:
+
+Phase 1 - Wager Collection:
+- Display current scores for all players
+- Each player submits a wager (0 to current score)
+- Validation prevents negative or excessive wagers
+- Wagers stored in $_SESSION['fj_wagers']
+
+Phase 2 - Question and Answers:
+- Display single Final Jeopardy question
+- Show category and question text
+- Each player submits an answer (text input)
+- Answers stored in $_SESSION['fj_answers']
+
+Phase 3 - Results and Scoring:
+- Compare each answer to correct answer (case-insensitive)
+- For each player:
+  * If correct: score += wager
+  * If incorrect: score -= wager
+- Calculate final rankings
+- Determine winner (highest final score)
+- Save winner to leaderboard file
+- Display final standings and winner announcement
+
+===============================================================================
+TURN MANAGEMENT
+===============================================================================
+
+Turn Rotation:
+- Turns rotate in round-robin fashion
+- After each question is answered (correct or incorrect)
+- Formula: next_player = (current_player + 1) % total_players
+- Example with 3 players: 0 -> 1 -> 2 -> 0 -> 1 -> ...
+
+Implementation:
+- $_SESSION['current_player'] stores current player index
+- After answer submission:
+  $_SESSION['current_player'] = 
+    ($_SESSION['current_player'] + 1) % count($_SESSION['players']);
+- Ensures fair distribution of question selection opportunities
+
+Display:
+- Current player highlighted in scoreboard with CSS class
+- "Current Player: [Name]" displayed at top of game board
+- Only current player should select tiles (enforced by display logic)
+
+===============================================================================
+ANSWER VALIDATION
+===============================================================================
+
+Answer Checking Process:
+1. Retrieve user's answer from form: $_POST['answer']
+2. Trim whitespace: trim($userAnswer)
+3. Convert to lowercase: strtolower($userAnswer)
+4. Get correct answer from questions.php
+5. Convert correct answer to lowercase: strtolower($correctAnswer)
+6. Compare: $isCorrect = ($userLower === $correctLower)
+
+Why Case-Insensitive:
+- Improves user experience
+- "paris", "Paris", "PARIS" all accepted
+- Reduces frustration from capitalization mistakes
+
+Exact Match Required:
+- No partial credit
+- No fuzzy matching
+- Simple string comparison for clarity and fairness
+
+Alternative Answers:
+- For questions with multiple acceptable answers
+- Store answer as first acceptable option
+- Players must match exactly (but case-insensitive)
+
+===============================================================================
+CSS STYLING APPROACH
+===============================================================================
+
+Theme: Blue and Gold Jeopardy Style
+
+Color Palette:
+- Primary Blue: #0a1f44 (dark background)
+- Secondary Blue: #1a3a6e (board background)
+- Gold: #d4af37 (tiles, headers, accents)
+- Light Gold: #ffd700 (highlights, text)
+- White: #ffffff (main text)
+
+Layout Techniques:
+- CSS Grid for game board (5 columns x 6 rows)
+- Flexbox for scoreboard and forms
+- Responsive design with media queries
+
+Animations (CSS only, no JavaScript):
+- @keyframes for title glow effect
+- transition for hover effects on tiles
+- transform: scale() for tile hover growth
+- box-shadow for glow effects
+
+Tile States:
+- Available: Gold background, blue text, hover effects
+- Used: Dark gray background, no text, no hover
+- Daily Double: Same appearance until selected (hidden)
+- Active Player: Highlighted scoreboard item with pulse animation
+
+Button Styles:
+- Primary: Gold gradient
+- Secondary: Blue gradient  
+- Danger: Red gradient (for admin reset)
+- All have hover effects with transform and shadow
+
+===============================================================================
+ERROR HANDLING
+===============================================================================
+
+Session Validation:
+- Every page checks if $_SESSION['players'] exists
+- If not found, redirect to index.php
+- Prevents accessing game pages without proper initialization
+
+Form Validation:
+- Server-side validation in PHP
+- Check for required fields
+- Validate numeric inputs (wagers, scores)
+- Trim and sanitize user inputs
+
+File Permissions:
+- leaderboard.txt must have write permissions
+- Check file_exists() before reading
+- Use file_put_contents() which creates file if missing
+
+XSS Prevention:
+- Use htmlspecialchars() when displaying user input
+- Applies to player names, answers, etc.
+- Example: echo htmlspecialchars($playerName);
+
+===============================================================================
+TESTING RECOMMENDATIONS
+===============================================================================
+
+Test Cases:
+
+1. Player Setup:
+   - Test with 1, 2, 3, and 4 players
+   - Test with empty names (should show error)
+   - Test with very long names
+
+2. Question Answering:
+   - Test correct answers (various capitalizations)
+   - Test incorrect answers
+   - Test empty answers
+   - Verify score updates correctly
+
+3. Daily Doubles:
+   - Test with wager of 0
+   - Test with maximum wager
+   - Test with wager exceeding score
+   - Verify correct/incorrect scoring
+
+4. Final Jeopardy:
+   - Test with all correct answers
+   - Test with all incorrect answers
+   - Test with mixed results
+   - Verify final rankings are correct
+
+5. Leaderboard:
+   - Test saving after game completion
+   - Test displaying multiple entries
+   - Test admin reset with correct password
+   - Test admin reset with wrong password
+
+6. Session Management:
+   - Test browser back button behavior
+   - Test multiple games in sequence
+   - Test "Play Again" functionality
+
+===============================================================================
+DEPLOYMENT CONSIDERATIONS
+===============================================================================
+
+Server Requirements:
+- PHP 7.0 or higher
+- Apache web server
+- Session support enabled
+- File write permissions for data/ directory
+
+File Permissions (Linux):
+- Directories: 755 (rwxr-xr-x)
+- PHP files: 644 (rw-r--r--)
+- leaderboard.txt: 666 (rw-rw-rw-) for write access
+
+Path Considerations:
+- Use relative paths (./assets/styles.css)
+- Works from ~/public_html/proj2/ on CODD server
+- URL: http://codd.cs.gsu.edu/~aimran6/proj2/
+
+===============================================================================
+FUTURE ENHANCEMENTS (NOT IMPLEMENTED)
+===============================================================================
+
+Potential improvements for future versions:
+- Timer for answering questions
+- Multiple choice questions
+- Question categories customizable by players
+- Player avatars or profile pictures
+- Sound effects (would require JavaScript or HTML5 audio)
+- Statistics tracking (most correct answers, average score, etc.)
+- Different difficulty modes
+- Export leaderboard to CSV
+
+===============================================================================
