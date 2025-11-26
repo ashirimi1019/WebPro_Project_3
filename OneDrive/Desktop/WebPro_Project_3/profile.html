@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa's Workshop - Profile & Stats</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body class="profile-page">
+    <!-- Snowfall Animation Container -->
+    <div class="snowfall-container"></div>
+    
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <h1>🎄 Santa's Workshop</h1>
+        </div>
+        <div class="nav-right">
+            <a href="index.html" class="btn btn-sm">🎮 Play Game</a>
+            <button id="logoutBtn" class="btn btn-sm">🚪 Logout</button>
+        </div>
+    </nav>
+    
+    <!-- Profile Container -->
+    <div class="profile-container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <span class="avatar-icon">🧝</span>
+            </div>
+            <div class="profile-info">
+                <h1 id="profileUsername">Loading...</h1>
+                <p class="profile-email" id="profileEmail">email@example.com</p>
+                <div class="profile-badges">
+                    <span class="badge skill-badge">
+                        <span class="badge-icon">⭐</span>
+                        <span class="badge-text">Skill Level <span id="profileSkillLevel">1</span></span>
+                    </span>
+                    <span class="badge xp-badge">
+                        <span class="badge-icon">✨</span>
+                        <span class="badge-text"><span id="profileXP">0</span> XP</span>
+                    </span>
+                </div>
+            </div>
+            <div class="profile-actions">
+                <button id="changeThemeBtn" class="btn btn-secondary">
+                    <span>🎨 Change Theme</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <!-- Overview Card -->
+            <div class="stats-card card-large">
+                <h2>📊 Overview</h2>
+                <div class="stats-overview">
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalGames">0</div>
+                        <div class="stat-label">Total Games</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalWins">0</div>
+                        <div class="stat-label">Wins</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="winRate">0%</div>
+                        <div class="stat-label">Win Rate</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="currentStreak">0</div>
+                        <div class="stat-label">Current Streak</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Performance Card -->
+            <div class="stats-card">
+                <h2>⚡ Performance</h2>
+                <div class="stat-list">
+                    <div class="stat-item">
+                        <span class="stat-label">Best Time:</span>
+                        <span class="stat-value" id="bestTime">--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Best Moves:</span>
+                        <span class="stat-value" id="bestMoves">--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Average Time:</span>
+                        <span class="stat-value" id="avgTime">--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Average Moves:</span>
+                        <span class="stat-value" id="avgMoves">--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Highest Streak:</span>
+                        <span class="stat-value" id="highestStreak">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Max Difficulty:</span>
+                        <span class="stat-value" id="maxDifficulty">1</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Achievements Card -->
+            <div class="stats-card card-large">
+                <h2>🏆 Achievements</h2>
+                <div class="achievements-progress">
+                    <span>Unlocked: <strong id="achievementsUnlocked">0</strong> / <strong id="achievementsTotal">8</strong></span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="achievementsProgress"></div>
+                    </div>
+                </div>
+                <div id="achievementsList" class="achievements-grid">
+                    <!-- Achievements will be loaded dynamically -->
+                </div>
+            </div>
+            
+            <!-- Power-ups Card -->
+            <div class="stats-card">
+                <h2>🎁 Power-up Inventory</h2>
+                <div class="powerups-inventory">
+                    <div class="powerup-item">
+                        <span class="powerup-icon">🔍</span>
+                        <div class="powerup-details">
+                            <div class="powerup-name">Reveal Move</div>
+                            <div class="powerup-count">×<span id="inventoryReveal">0</span></div>
+                        </div>
+                    </div>
+                    <div class="powerup-item">
+                        <span class="powerup-icon">🔄</span>
+                        <div class="powerup-details">
+                            <div class="powerup-name">Swap Tiles</div>
+                            <div class="powerup-count">×<span id="inventorySwap">0</span></div>
+                        </div>
+                    </div>
+                    <div class="powerup-item">
+                        <span class="powerup-icon">❄️</span>
+                        <div class="powerup-details">
+                            <div class="powerup-name">Freeze Timer</div>
+                            <div class="powerup-count">×<span id="inventoryFreeze">0</span></div>
+                        </div>
+                    </div>
+                </div>
+                <p class="powerup-info">💡 Earn power-ups by completing puzzles and unlocking achievements!</p>
+            </div>
+            
+            <!-- Story Progress Card -->
+            <div class="stats-card">
+                <h2>📖 Story Progress</h2>
+                <div class="story-overview">
+                    <div class="story-progress-circle">
+                        <svg class="progress-ring" width="120" height="120">
+                            <circle class="progress-ring-circle" stroke="#e0e0e0" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
+                            <circle id="storyProgressCircle" class="progress-ring-circle progress-ring-fill" stroke="#4CAF50" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
+                        </svg>
+                        <div class="progress-percentage">
+                            <span id="storyPercentage">14%</span>
+                        </div>
+                    </div>
+                    <div class="story-details">
+                        <p><strong id="chaptersUnlocked">1</strong> of 7 chapters unlocked</p>
+                        <p class="story-status">Continue playing to unlock more!</p>
+                        <button id="viewStoryBtn" class="btn btn-secondary btn-block">
+                            <span>📚 View Story</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Game History Card -->
+            <div class="stats-card card-full">
+                <h2>📜 Recent Games</h2>
+                <div class="game-history-table">
+                    <table id="gameHistoryTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Size</th>
+                                <th>Difficulty</th>
+                                <th>Moves</th>
+                                <th>Time</th>
+                                <th>Score</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gameHistoryBody">
+                            <tr>
+                                <td colspan="7" class="no-data">Loading game history...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Leaderboard Card -->
+            <div class="stats-card card-full">
+                <h2>🏅 Leaderboard (Top 10)</h2>
+                <div class="leaderboard-table">
+                    <table id="leaderboardTable">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Player</th>
+                                <th>Skill Level</th>
+                                <th>Total Wins</th>
+                                <th>Best Time</th>
+                                <th>Highest Streak</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardBody">
+                            <tr>
+                                <td colspan="6" class="no-data">Loading leaderboard...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Theme Selector Modal -->
+    <div id="themeModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎨 Choose Theme</h2>
+                <button class="modal-close" data-modal="themeModal">×</button>
+            </div>
+            <div class="theme-selector">
+                <div class="theme-option" data-theme="snowy">
+                    <div class="theme-preview snowy-preview"></div>
+                    <h3>❄️ Snowy</h3>
+                    <p>Winter wonderland</p>
+                </div>
+                <div class="theme-option" data-theme="workshop">
+                    <div class="theme-preview workshop-preview"></div>
+                    <h3>🎅 Workshop</h3>
+                    <p>Santa's cozy workshop</p>
+                </div>
+                <div class="theme-option" data-theme="reindeer">
+                    <div class="theme-preview reindeer-preview"></div>
+                    <h3>🦌 Reindeer</h3>
+                    <p>Stable vibes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Story Modal -->
+    <div id="storyModal" class="modal hidden">
+        <div class="modal-content story-modal">
+            <div class="modal-header">
+                <h2>📖 Story Chapters</h2>
+                <button class="modal-close" data-modal="storyModal">×</button>
+            </div>
+            <div id="storyChaptersList" class="story-chapters-list">
+                <!-- Chapters will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-spinner"></div>
+        <p>Loading profile...</p>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/profile.js"></script>
+    <script>
+        // Global variables
+        let profileData = null;
+        let statsData = null;
+        let achievementsData = null;
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuthentication();
+            createSnowfall();
+            loadProfileData();
+        });
+        
+        // Check authentication
+        async function checkAuthentication() {
+            const auth = await apiRequest('check_auth');
+            if (!auth.success || !auth.authenticated) {
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // Load all profile data
+        async function loadProfileData() {
+            showLoading();
+            
+            try {
+                // Load profile, stats, achievements, powerups, history, leaderboard in parallel
+                const [profile, stats, achievements, powerups, history, leaderboard, story] = await Promise.all([
+                    apiRequest('get_profile'),
+                    apiRequest('get_stats'),
+                    apiRequest('get_achievements'),
+                    apiRequest('get_powerups'),
+                    apiRequest('get_game_history'),
+                    apiRequest('get_leaderboard', {}, 'GET'),
+                    apiRequest('get_story_progress')
+                ]);
+                
+                if (profile.success) displayProfile(profile.profile);
+                if (stats.success) displayStats(stats.stats);
+                if (achievements.success) displayAchievements(achievements);
+                if (powerups.success) displayPowerups(powerups.powerups);
+                if (history.success) displayGameHistory(history.history);
+                if (leaderboard.success) displayLeaderboard(leaderboard.leaderboard);
+                if (story.success) displayStoryProgress(story);
+                
+            } catch (error) {
+                console.error('Error loading profile data:', error);
+                showMessage('Failed to load profile data', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // Display functions will be in a separate profile.js file (to keep this clean)
+        // For now, these are placeholder references
+    </script>
+    <script src="js/profile.js"></script>
+</body>
+</html>

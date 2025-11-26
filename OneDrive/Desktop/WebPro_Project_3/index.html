@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa's Workshop - Christmas Puzzle</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/game.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/themes.css">
+</head>
+<body class="game-page">
+    <!-- Snowfall Animation Container -->
+    <div class="snowfall-container"></div>
+    
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <h1>🎄 Santa's Workshop</h1>
+        </div>
+        <div class="nav-center">
+            <div class="skill-display">
+                <span class="skill-label">Skill Level:</span>
+                <span class="skill-value" id="skillLevel">1</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <span class="username" id="username">Player</span>
+            <a href="profile.html" class="btn btn-sm">📊 Stats</a>
+            <button id="logoutBtn" class="btn btn-sm">🚪 Logout</button>
+        </div>
+    </nav>
+    
+    <!-- Main Game Container -->
+    <div class="game-container">
+        <!-- Left Panel: Game Info -->
+        <aside class="game-sidebar left">
+            <div class="info-card">
+                <h3>📈 Game Stats</h3>
+                <div class="stat-item">
+                    <span class="stat-label">Difficulty:</span>
+                    <span class="stat-value" id="difficulty">1</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Moves:</span>
+                    <span class="stat-value" id="moveCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Time:</span>
+                    <span class="stat-value" id="timer">00:00</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Score:</span>
+                    <span class="stat-value" id="score">0</span>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <h3>💡 Hints</h3>
+                <p class="hint-count">Daily hints: <span id="hintsRemaining">3</span>/3</p>
+                <button id="useHintBtn" class="btn btn-secondary btn-block">
+                    <span>💡 Use Hint</span>
+                </button>
+            </div>
+            
+            <div class="info-card">
+                <h3>🎁 Power-ups</h3>
+                <button id="powerupReveal" class="btn btn-powerup" data-powerup="reveal_move">
+                    <span class="powerup-icon">🔍</span>
+                    <span class="powerup-name">Reveal Move</span>
+                    <span class="powerup-count" id="powerupRevealCount">3</span>
+                </button>
+                <button id="powerupSwap" class="btn btn-powerup" data-powerup="swap_tiles">
+                    <span class="powerup-icon">🔄</span>
+                    <span class="powerup-name">Swap Tiles</span>
+                    <span class="powerup-count" id="powerupSwapCount">2</span>
+                </button>
+                <button id="powerupFreeze" class="btn btn-powerup" data-powerup="freeze_timer">
+                    <span class="powerup-icon">❄️</span>
+                    <span class="powerup-name">Freeze Timer</span>
+                    <span class="powerup-count" id="powerupFreezeCount">5</span>
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Center: Game Board -->
+        <main class="game-main">
+            <div class="game-header">
+                <h2>🧩 Solve the Puzzle</h2>
+                <div class="game-actions">
+                    <button id="newGameBtn" class="btn btn-success">
+                        <span>🎮 New Game</span>
+                    </button>
+                    <button id="previewBtn" class="btn btn-secondary">
+                        <span>👁️ Preview Solution</span>
+                    </button>
+                    <button id="themeBtn" class="btn btn-secondary">
+                        <span>🎨 Change Theme</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Puzzle Board -->
+            <div class="puzzle-container">
+                <div id="puzzleBoard" class="puzzle-board size-4">
+                    <!-- Tiles will be generated dynamically -->
+                </div>
+            </div>
+            
+            <!-- Message Display -->
+            <div id="gameMessage" class="game-message hidden"></div>
+        </main>
+        
+        <!-- Right Panel: Progress & Achievements -->
+        <aside class="game-sidebar right">
+            <div class="info-card">
+                <h3>🏆 Recent Achievements</h3>
+                <div id="recentAchievements" class="achievements-list">
+                    <p class="no-data">Complete puzzles to unlock achievements!</p>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <h3>📖 Story Progress</h3>
+                <div id="storyProgress" class="story-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="storyProgressBar" style="width: 14%"></div>
+                    </div>
+                    <p class="progress-text">Chapter <span id="currentChapter">1</span> of 7</p>
+                    <button id="viewStoryBtn" class="btn btn-secondary btn-block">
+                        <span>📚 View Story</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <h3>📊 Session Stats</h3>
+                <div class="session-stats">
+                    <div class="stat-row">
+                        <span>Wins:</span>
+                        <span id="sessionWins">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Current Streak:</span>
+                        <span id="currentStreak">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Best Time:</span>
+                        <span id="bestTime">--</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+    
+    <!-- Victory Modal -->
+    <div id="victoryModal" class="modal hidden">
+        <div class="modal-content victory-modal">
+            <div class="confetti-container"></div>
+            <h2>🎉 Puzzle Complete!</h2>
+            <div class="victory-stats">
+                <div class="victory-stat">
+                    <span class="victory-label">Time:</span>
+                    <span class="victory-value" id="victoryTime">--</span>
+                </div>
+                <div class="victory-stat">
+                    <span class="victory-label">Moves:</span>
+                    <span class="victory-value" id="victoryMoves">--</span>
+                </div>
+                <div class="victory-stat">
+                    <span class="victory-label">Score:</span>
+                    <span class="victory-value" id="victoryScore">--</span>
+                </div>
+            </div>
+            <div id="victoryAchievements" class="victory-achievements hidden">
+                <h3>🏆 New Achievements!</h3>
+                <div id="newAchievementsList"></div>
+            </div>
+            <div id="victoryStory" class="victory-story hidden">
+                <h3>📖 New Chapter Unlocked!</h3>
+                <div id="newStoryContent"></div>
+            </div>
+            <div class="modal-actions">
+                <button id="playAgainBtn" class="btn btn-primary">
+                    <span>🎮 Play Again</span>
+                </button>
+                <button id="viewProfileBtn" class="btn btn-secondary">
+                    <span>📊 View Stats</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Theme Selector Modal -->
+    <div id="themeModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎨 Choose Theme</h2>
+                <button class="modal-close" data-modal="themeModal">×</button>
+            </div>
+            <div class="theme-selector">
+                <div class="theme-option" data-theme="snowy">
+                    <div class="theme-preview snowy-preview"></div>
+                    <h3>❄️ Snowy</h3>
+                    <p>Winter wonderland</p>
+                </div>
+                <div class="theme-option" data-theme="workshop">
+                    <div class="theme-preview workshop-preview"></div>
+                    <h3>🎅 Workshop</h3>
+                    <p>Santa's cozy workshop</p>
+                </div>
+                <div class="theme-option" data-theme="reindeer">
+                    <div class="theme-preview reindeer-preview"></div>
+                    <h3>🦌 Reindeer</h3>
+                    <p>Stable vibes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Story Modal -->
+    <div id="storyModal" class="modal hidden">
+        <div class="modal-content story-modal">
+            <div class="modal-header">
+                <h2>📖 Story Chapters</h2>
+                <button class="modal-close" data-modal="storyModal">×</button>
+            </div>
+            <div id="storyChaptersList" class="story-chapters-list">
+                <!-- Chapters will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>👁️ Solution Preview</h2>
+                <button class="modal-close" data-modal="previewModal">×</button>
+            </div>
+            <p class="preview-warning">This will use 1 hint!</p>
+            <div id="previewBoard" class="puzzle-board size-4 preview-board">
+                <!-- Preview tiles -->
+            </div>
+            <button class="btn btn-secondary btn-block modal-close" data-modal="previewModal">
+                <span>Close</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-spinner"></div>
+        <p>Generating puzzle...</p>
+    </div>
+    
+    <!-- Audio Elements (hidden) -->
+    <audio id="bgMusic" loop>
+        <source src="assets/audio/bgm.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="tileClickSound">
+        <source src="assets/audio/tile-click.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="moveSound">
+        <source src="assets/audio/move.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="victorySound">
+        <source src="assets/audio/victory.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="powerupSound">
+        <source src="assets/audio/powerup.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/puzzle.js"></script>
+    <script src="js/adaptive.js"></script>
+    <script src="js/powerups.js"></script>
+    <script src="js/game.js"></script>
+    <script>
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAuthentication();
+            createSnowfall();
+            initializeGame();
+        });
+    </script>
+</body>
+</html>

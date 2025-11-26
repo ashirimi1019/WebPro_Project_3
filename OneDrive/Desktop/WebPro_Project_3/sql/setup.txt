@@ -1,0 +1,268 @@
+# 📋 DATABASE SETUP INSTRUCTIONS
+## Command-Line MySQL Setup (NO GUI TOOLS)
+
+**IMPORTANT:** This project requires command-line MySQL usage to meet academic requirements.
+
+---
+
+## ✅ Prerequisites
+
+1. **MySQL Server 8.0+** installed and running
+2. **MySQL command-line client** available
+3. **Root or admin access** to MySQL
+
+---
+
+## 🚀 Step-by-Step Setup
+
+### Step 1: Open Command Prompt / PowerShell
+```powershell
+# On Windows, open PowerShell and navigate to your project directory
+cd C:\Users\ashir\OneDrive\Desktop\WebPro_Project_3
+```
+
+### Step 2: Login to MySQL
+```bash
+# Method 1: Login with password prompt
+mysql -u root -p
+
+# Method 2: Login directly (if no password)
+mysql -u root
+
+# Method 3: Login as specific user
+mysql -u your_username -p
+```
+
+### Step 3: Execute the Schema File
+Once logged into MySQL, run:
+
+```sql
+-- Option A: From within MySQL prompt
+SOURCE C:/Users/ashir/OneDrive/Desktop/WebPro_Project_3/sql/schema.sql;
+
+-- Option B: Execute directly from command line (outside MySQL)
+mysql -u root -p < C:/Users/ashir/OneDrive/Desktop/WebPro_Project_3/sql/schema.sql
+```
+
+### Step 4: Verify Database Creation
+```sql
+-- Show all databases
+SHOW DATABASES;
+
+-- Use the new database
+USE christmas_puzzle;
+
+-- Show all tables
+SHOW TABLES;
+
+-- Verify story chapters were seeded
+SELECT * FROM story_chapters;
+
+-- Check if procedures were created
+SHOW PROCEDURE STATUS WHERE Db = 'christmas_puzzle';
+```
+
+### Step 5: Test Table Structure
+```sql
+-- View users table structure
+DESCRIBE users;
+
+-- View game_sessions table structure
+DESCRIBE game_sessions;
+
+-- View all indexes
+SHOW INDEX FROM game_sessions;
+```
+
+---
+
+## 🔐 Create Database User (Optional but Recommended)
+
+For security, create a dedicated user instead of using root:
+
+```sql
+-- Create new user for the application
+CREATE USER 'puzzle_app'@'localhost' IDENTIFIED BY 'SecurePassword123!';
+
+-- Grant necessary privileges
+GRANT SELECT, INSERT, UPDATE, DELETE ON christmas_puzzle.* TO 'puzzle_app'@'localhost';
+
+-- Flush privileges
+FLUSH PRIVILEGES;
+
+-- Test login with new user
+-- (Exit MySQL first with: EXIT;)
+mysql -u puzzle_app -p christmas_puzzle
+```
+
+---
+
+## 📊 Test Data Insertion (Optional)
+
+To test with sample data:
+
+```sql
+-- Register a test user (uses stored procedure)
+CALL register_user('test_user', 'test@example.com', '$2y$10$examplehashedpassword');
+
+-- Check if user was created
+SELECT * FROM users WHERE username = 'test_user';
+
+-- Check if analytics were initialized
+SELECT * FROM user_analytics WHERE user_id = 1;
+
+-- Check if power-ups were initialized
+SELECT * FROM powerups_inventory WHERE user_id = 1;
+
+-- Check if story progress was initialized
+SELECT * FROM story_progress WHERE user_id = 1;
+```
+
+---
+
+## 🛠️ Common MySQL Commands
+
+### Database Management
+```sql
+-- List all databases
+SHOW DATABASES;
+
+-- Select a database
+USE christmas_puzzle;
+
+-- Drop database (CAUTION: Deletes everything!)
+DROP DATABASE christmas_puzzle;
+```
+
+### Table Management
+```sql
+-- List all tables
+SHOW TABLES;
+
+-- View table structure
+DESCRIBE table_name;
+
+-- View table creation statement
+SHOW CREATE TABLE table_name;
+
+-- Count rows in table
+SELECT COUNT(*) FROM table_name;
+```
+
+### Data Queries
+```sql
+-- View all users
+SELECT user_id, username, email, skill_level, created_at FROM users;
+
+-- View leaderboard
+SELECT * FROM leaderboard LIMIT 10;
+
+-- View recent games
+SELECT * FROM recent_activity LIMIT 20;
+
+-- Get user statistics
+SELECT u.username, ua.* 
+FROM user_analytics ua
+JOIN users u ON ua.user_id = u.user_id;
+```
+
+### Stored Procedure Management
+```sql
+-- List all stored procedures
+SHOW PROCEDURE STATUS WHERE Db = 'christmas_puzzle';
+
+-- View procedure definition
+SHOW CREATE PROCEDURE register_user;
+
+-- Execute a stored procedure
+CALL register_user('username', 'email@example.com', 'hashed_password');
+```
+
+---
+
+## 🔍 Verification Checklist
+
+After setup, verify the following:
+
+- [ ] Database `christmas_puzzle` exists
+- [ ] All 9 tables are created
+- [ ] 7 story chapters are seeded in `story_chapters`
+- [ ] 4 stored procedures are created:
+  - `register_user`
+  - `save_game_session`
+  - `check_achievements`
+  - `check_story_unlocks`
+  - `reset_daily_hints`
+- [ ] 2 views are created:
+  - `leaderboard`
+  - `recent_activity`
+- [ ] 1 trigger is created:
+  - `award_powerup_on_achievement`
+- [ ] All indexes are properly created
+- [ ] Foreign key relationships are working
+
+---
+
+## 🐛 Troubleshooting
+
+### Error: "Access denied for user 'root'@'localhost'"
+**Solution:** Reset your MySQL root password or use correct credentials.
+
+### Error: "Unknown database 'christmas_puzzle'"
+**Solution:** Ensure the schema.sql file executed successfully. Re-run it.
+
+### Error: "Cannot execute SOURCE command"
+**Solution:** Use absolute file path with forward slashes:
+```sql
+SOURCE C:/path/to/schema.sql;
+```
+
+### Error: "Procedure already exists"
+**Solution:** Drop and recreate:
+```sql
+DROP PROCEDURE IF EXISTS procedure_name;
+-- Then re-run schema.sql
+```
+
+### On Windows: "mysql is not recognized"
+**Solution:** Add MySQL to PATH or use full path:
+```powershell
+"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -p
+```
+
+---
+
+## 📝 Configuration for PHP Backend
+
+After database setup, update `php/config.php` with your credentials:
+
+```php
+<?php
+define('DB_HOST', 'localhost');
+define('DB_USER', 'puzzle_app');  // or 'root'
+define('DB_PASS', 'SecurePassword123!');  // your password
+define('DB_NAME', 'christmas_puzzle');
+?>
+```
+
+---
+
+## 🎯 Next Steps
+
+1. ✅ Database schema created
+2. ⏭️ Configure PHP backend (`php/config.php`)
+3. ⏭️ Test API endpoints
+4. ⏭️ Build frontend interface
+5. ⏭️ Implement game logic
+
+---
+
+## 📚 Additional Resources
+
+- [MySQL Command-Line Documentation](https://dev.mysql.com/doc/refman/8.0/en/mysql.html)
+- [MySQL Stored Procedures](https://dev.mysql.com/doc/refman/8.0/en/stored-programs-defining.html)
+- [MySQL Triggers](https://dev.mysql.com/doc/refman/8.0/en/triggers.html)
+
+---
+
+**Last Updated:** November 25, 2025

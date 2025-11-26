@@ -1,0 +1,341 @@
+/* ==========================================
+   CHRISTMAS FIFTEEN PUZZLE - THEMES
+   Extended theme customization
+   ========================================== */
+
+/* ==========================================
+   SANTA'S WORKSHOP THEME (Default)
+   ========================================== */
+
+[data-theme="workshop"] {
+    --bg-primary: #1a0f0f;
+    --bg-secondary: #2d1f1f;
+    --surface-color: #3d2626;
+    --text-primary: #ffffff;
+    --text-secondary: #e0d5d5;
+    
+    --primary-color: #c41e3a;
+    --primary-hover: #a01829;
+    --accent-color: #f4c430;
+    
+    --success-color: #10b981;
+    --error-color: #ef4444;
+    --warning-color: #f59e0b;
+}
+
+[data-theme="workshop"] body {
+    background-image: 
+        radial-gradient(circle at 20% 50%, rgba(196, 30, 58, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(244, 196, 48, 0.1) 0%, transparent 50%);
+}
+
+[data-theme="workshop"] .puzzle-board {
+    background-image: 
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            rgba(244, 196, 48, 0.03) 10px,
+            rgba(244, 196, 48, 0.03) 20px
+        );
+}
+
+[data-theme="workshop"] .sidebar h2::before {
+    content: '🎅';
+}
+
+/* ==========================================
+   SNOWY NIGHT THEME
+   ========================================== */
+
+[data-theme="snowy"] {
+    --bg-primary: #0f1419;
+    --bg-secondary: #1a2332;
+    --surface-color: #253345;
+    --text-primary: #ffffff;
+    --text-secondary: #b8d4f1;
+    
+    --primary-color: #3b82f6;
+    --primary-hover: #2563eb;
+    --accent-color: #60a5fa;
+    
+    --success-color: #10b981;
+    --error-color: #ef4444;
+    --warning-color: #f59e0b;
+}
+
+[data-theme="snowy"] body {
+    background-image: 
+        radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 70% 70%, rgba(96, 165, 250, 0.15) 0%, transparent 50%);
+}
+
+[data-theme="snowy"] .puzzle-board {
+    background-image: 
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 20px,
+            rgba(96, 165, 250, 0.05) 20px,
+            rgba(96, 165, 250, 0.05) 40px
+        );
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+}
+
+[data-theme="snowy"] .sidebar h2::before {
+    content: '❄️';
+}
+
+[data-theme="snowy"] .snowflake {
+    color: #60a5fa;
+    text-shadow: 0 0 10px rgba(96, 165, 250, 0.8);
+}
+
+/* ==========================================
+   REINDEER GAMES THEME
+   ========================================== */
+
+[data-theme="reindeer"] {
+    --bg-primary: #1a1410;
+    --bg-secondary: #2d241f;
+    --surface-color: #3d3026;
+    --text-primary: #ffffff;
+    --text-secondary: #e0d8d0;
+    
+    --primary-color: #b45309;
+    --primary-hover: #92400e;
+    --accent-color: #fbbf24;
+    
+    --success-color: #10b981;
+    --error-color: #ef4444;
+    --warning-color: #f59e0b;
+}
+
+[data-theme="reindeer"] body {
+    background-image: 
+        radial-gradient(circle at 40% 40%, rgba(180, 83, 9, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 60% 60%, rgba(251, 191, 36, 0.12) 0%, transparent 50%);
+}
+
+[data-theme="reindeer"] .puzzle-board {
+    background-image: 
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 15px,
+            rgba(251, 191, 36, 0.04) 15px,
+            rgba(251, 191, 36, 0.04) 30px
+        );
+}
+
+[data-theme="reindeer"] .sidebar h2::before {
+    content: '🦌';
+}
+
+/* ==========================================
+   THEME-SPECIFIC BUTTON STYLES
+   ========================================== */
+
+[data-theme="workshop"] .btn-primary {
+    background: linear-gradient(135deg, #c41e3a 0%, #a01829 100%);
+}
+
+[data-theme="workshop"] .btn-primary:hover {
+    background: linear-gradient(135deg, #a01829 0%, #7d1320 100%);
+}
+
+[data-theme="snowy"] .btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+[data-theme="snowy"] .btn-primary:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+[data-theme="reindeer"] .btn-primary {
+    background: linear-gradient(135deg, #b45309 0%, #92400e 100%);
+}
+
+[data-theme="reindeer"] .btn-primary:hover {
+    background: linear-gradient(135deg, #92400e 0%, #78350f 100%);
+}
+
+/* ==========================================
+   THEME SELECTION CARDS
+   ========================================== */
+
+.theme-card {
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 3px solid transparent;
+}
+
+.theme-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.1;
+    transition: opacity 0.3s ease;
+}
+
+.theme-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+}
+
+.theme-card:hover::before {
+    opacity: 0.2;
+}
+
+.theme-card.active {
+    border-color: var(--primary-color);
+}
+
+/* Workshop theme card */
+.theme-card[data-theme-select="workshop"] {
+    background: linear-gradient(135deg, #c41e3a 0%, #a01829 100%);
+}
+
+.theme-card[data-theme-select="workshop"]::before {
+    background: linear-gradient(45deg, #f4c430, #c41e3a);
+}
+
+/* Snowy theme card */
+.theme-card[data-theme-select="snowy"] {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.theme-card[data-theme-select="snowy"]::before {
+    background: linear-gradient(45deg, #60a5fa, #3b82f6);
+}
+
+/* Reindeer theme card */
+.theme-card[data-theme-select="reindeer"] {
+    background: linear-gradient(135deg, #b45309 0%, #92400e 100%);
+}
+
+.theme-card[data-theme-select="reindeer"]::before {
+    background: linear-gradient(45deg, #fbbf24, #b45309);
+}
+
+.theme-card-icon {
+    font-size: 3rem;
+    display: block;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.theme-card-name {
+    font-size: 1.25rem;
+    font-weight: bold;
+    text-align: center;
+    color: white;
+}
+
+.theme-card-desc {
+    font-size: 0.875rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 0.5rem;
+}
+
+/* ==========================================
+   THEME-SPECIFIC ANIMATIONS
+   ========================================== */
+
+[data-theme="workshop"] .puzzle-tile.movable {
+    box-shadow: 0 0 25px #f4c430, 0 4px 20px rgba(196, 30, 58, 0.4);
+}
+
+[data-theme="snowy"] .puzzle-tile.movable {
+    box-shadow: 0 0 25px #60a5fa, 0 4px 20px rgba(59, 130, 246, 0.4);
+}
+
+[data-theme="reindeer"] .puzzle-tile.movable {
+    box-shadow: 0 0 25px #fbbf24, 0 4px 20px rgba(180, 83, 9, 0.4);
+}
+
+/* ==========================================
+   THEME PREVIEW BACKGROUNDS
+   ========================================== */
+
+.theme-preview {
+    width: 100%;
+    height: 200px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-preview[data-theme="workshop"] {
+    background: linear-gradient(135deg, #c41e3a 0%, #a01829 100%);
+}
+
+.theme-preview[data-theme="snowy"] {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.theme-preview[data-theme="reindeer"] {
+    background: linear-gradient(135deg, #b45309 0%, #92400e 100%);
+}
+
+/* ==========================================
+   RESPONSIVE THEME ADJUSTMENTS
+   ========================================== */
+
+@media (max-width: 768px) {
+    .theme-card {
+        padding: 1rem;
+    }
+    
+    .theme-card-icon {
+        font-size: 2.5rem;
+    }
+    
+    .theme-card-name {
+        font-size: 1rem;
+    }
+    
+    .theme-card-desc {
+        font-size: 0.75rem;
+    }
+}
+
+/* ==========================================
+   ACCESSIBILITY
+   ========================================== */
+
+@media (prefers-contrast: high) {
+    [data-theme="workshop"] {
+        --primary-color: #ff0033;
+        --accent-color: #ffdd00;
+    }
+    
+    [data-theme="snowy"] {
+        --primary-color: #0066ff;
+        --accent-color: #00ccff;
+    }
+    
+    [data-theme="reindeer"] {
+        --primary-color: #ff6600;
+        --accent-color: #ffcc00;
+    }
+}
+
+/* ==========================================
+   DARK MODE SUPPORT (System Preference)
+   ========================================== */
+
+@media (prefers-color-scheme: dark) {
+    /* Themes are already dark by default */
+    /* This section can be used for additional dark mode tweaks */
+}
