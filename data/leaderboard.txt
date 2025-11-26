@@ -1,3 +1,0 @@
-# Jeopardy! Battle Arena - Leaderboard Data
-# Format: Winner Name | Score | Date & Time
-# This file stores game results across sessions
